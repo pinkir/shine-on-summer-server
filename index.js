@@ -28,9 +28,16 @@ async function run() {
     await client.connect();
 
     const popularClassCollection = client.db("shineOn").collection("populerClass");
+    const popularInsCollection = client.db("shineOn").collection("populerIns");
 
     app.get('/populerClass', async(req, res)=>{
       const result = await popularClassCollection.find().sort({ "students": -1 }).limit(6).toArray()
+      res.send(result);
+    })
+
+
+    app.get('/populerIns', async(req, res)=>{
+      const result = await popularInsCollection.find().sort({ "students": -1 }).limit(6).toArray()
       res.send(result);
     })
 
