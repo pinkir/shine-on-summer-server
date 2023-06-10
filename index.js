@@ -42,6 +42,12 @@ async function run() {
     })
 
 
+    app.get('/instructors', async(req, res)=>{
+      const result = await popularInsCollection.find().toArray()
+      res.send(result);
+    })
+
+
 
 
     // Send a ping to confirm a successful connection
