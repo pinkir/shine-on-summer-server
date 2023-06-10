@@ -30,6 +30,9 @@ async function run() {
     const popularClassCollection = client.db("shineOn").collection("populerClass");
     const popularInsCollection = client.db("shineOn").collection("populerIns");
     const cartsCollection = client.db("shineOn").collection("carts");
+    const usersCollection = client.db("shineOn").collection("users");
+
+
 
     app.get('/populerClass', async(req, res)=>{
       const result = await popularClassCollection.find().sort({ "students": -1 }).limit(6).toArray()
@@ -52,6 +55,23 @@ async function run() {
       const result = await popularClassCollection.find().toArray()
       res.send(result);
     })
+
+     // users
+
+     app.post('/users', async(req, res)=>{
+      const user = req.body;
+      console.log(user);
+      const query = {email: user.email}
+      const existingUser = await usersCollection.findOne(query);
+      if(existingUser){
+        return res.send({ message: 'user exists'})
+      }
+      const result = await usersCollection.insertOne(user)
+      res.send(result);
+    })
+
+
+
 
     // carts
 
