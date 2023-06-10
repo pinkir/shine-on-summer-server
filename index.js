@@ -29,6 +29,7 @@ async function run() {
 
     const popularClassCollection = client.db("shineOn").collection("populerClass");
     const popularInsCollection = client.db("shineOn").collection("populerIns");
+    const cartsCollection = client.db("shineOn").collection("carts");
 
     app.get('/populerClass', async(req, res)=>{
       const result = await popularClassCollection.find().sort({ "students": -1 }).limit(6).toArray()
@@ -44,6 +45,19 @@ async function run() {
 
     app.get('/instructors', async(req, res)=>{
       const result = await popularInsCollection.find().toArray()
+      res.send(result);
+    })
+
+    app.get('/classes', async(req, res)=>{
+      const result = await popularClassCollection.find().toArray()
+      res.send(result);
+    })
+
+    // carts
+    app.post('/carts', async(req, res)=>{
+      const item = req.body;
+      console.log(item)
+      const result = await cartsCollection.insertOne(item)
       res.send(result);
     })
 
