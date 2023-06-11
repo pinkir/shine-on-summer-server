@@ -65,6 +65,19 @@ async function run() {
     })
 
 
+    // verifyjwt before verifyadmin
+
+    const verifyAdmin = async(req, res, next)=>{
+      const email =req.decoded.email;
+      const query = {email: email}
+      const user = await usersCollection.findOne(query)
+      if(user?.role !== 'admin'){
+        return res.status(403).send({error: true, message: 'forbidden'})
+      }
+      next();
+    }
+
+
     // popular sections
     app.get('/populerIns', async(req, res)=>{
       const result = await popularInsCollection.find().sort({ "students": -1 }).limit(6).toArray()
@@ -84,7 +97,7 @@ async function run() {
 
      // users
 
-     app.get('/users', async(req, res)=>{
+     app.get('/users', verifyJWT, verifyAdmin, async(req, res)=>{
       const result = await usersCollection.find().toArray()
       res.send(result);
      })
