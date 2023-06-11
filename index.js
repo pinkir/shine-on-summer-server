@@ -95,6 +95,31 @@ async function run() {
       res.send(result);
     })
 
+    // approved classes
+    app.post('/classes', async(req, res)=>{
+      const newClass = req.body;
+      const result = await popularClassCollection.insertOne(newClass)
+      res.send(result);
+
+    })
+
+    // get classes by email
+
+    app.get('/classes/:email', async (req, res) => {
+      console.log(req.params.email);
+      // const query = {};
+      // const price= parseInt(req.params.price)
+      const options = {
+        sort: { "price": 1}
+      }
+      const result = await popularClassCollection.find({ email: req.params.email }).sort({"price": 1}).toArray();
+      res.send(result);
+
+    })
+
+
+
+
      // users
 
      app.get('/users', verifyJWT, verifyAdmin, async(req, res)=>{
