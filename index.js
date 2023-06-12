@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
+const stripe = require('stripe')(process.env.PAYMENT_SECRET_KEY)
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -49,6 +50,7 @@ async function run() {
     const popularInsCollection = client.db("shineOn").collection("populerIns");
     const cartsCollection = client.db("shineOn").collection("carts");
     const usersCollection = client.db("shineOn").collection("users");
+    const paymentCollection = client.db("shineOn").collection("payments");
 
 
 
@@ -235,6 +237,8 @@ async function run() {
 
 
 
+
+
     // carts
 
     app.get('/carts', verifyJWT, async (req, res) => {
@@ -268,6 +272,54 @@ async function run() {
       const query = { _id: new ObjectId(id) };
       const result = await cartsCollection.deleteOne(query)
       res.send(result);
+    })
+
+    // payment
+
+    app.post('/create-payment-intent', verifyJWT, async(req, res) =>{
+      const { price } = req.body;
+      const amount = price * 100;
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: amount,
+        currency: 'usd',
+        payment_method_types: ['card']
+      });
+      res.send({
+        clientSecret: paymentIntent.client_secret
+      })
+    })
+
+
+    app.get('/carts/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await cartsCollection.findOne(query)
+      res.send(result);
+    })
+
+    // payment info
+
+    app.post('/payments',  async(req, res)=>{
+      const payment = req.body;
+      const insertResult = await paymentCollection.insertOne(payment);
+      
+      res.send(insertResult);
+    })
+
+
+    // enrolled cls
+
+    app.get('/payments', async(req, res)=>{
+      const result = await paymentCollection.find().toArray()
+      res.send(result);
+    })
+
+    app.get('/payments/:email', async (req, res) => {
+      console.log(req.params.email);
+
+      const result = await paymentCollection.find({ email: req.params.email }).sort({ "price": 1 }).toArray();
+      res.send(result);
+
     })
 
 
