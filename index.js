@@ -102,7 +102,7 @@ async function run() {
     // manage classes admin (pending)
 
     app.get('/classes/pending', async (req, res) => {
-      const result = await popularClassCollection.find({ status: 'pending' }).toArray()
+      const result = await popularClassCollection.find({ status: { $in: ['pending', 'denied'] } }).toArray()
       res.send(result);
     })
 
@@ -113,17 +113,39 @@ async function run() {
       res.send(result)
     })
 
-    // app.put('/classes/pending/:id', async (req, res) => {
-    //   const id = req.params.id;
-    //   console.log(id)
-    //   const filter = { _id: new ObjectId(id) }
-    //   const options = { upsert: true }
-    //   const cls = {
-    //     $set: {status: 'approved'}
-    //   }
-    //   const result = await popularClassCollection.updateOne(filter, cls, options)
-    //   res.send(result);
-    // })
+    // approve
+
+    app.patch('/classes/pending/:id', async (req, res) => {
+      const id = req.params.id;
+      console.log(id)
+      const filter = { _id: new ObjectId(id) }
+      const updateDoc = {
+        $set: {status: 'approved'}
+      }
+      const result = await popularClassCollection.updateOne(filter, updateDoc)
+      res.send(result);
+    })
+
+    // deny
+
+
+    app.get('/classes/deny'), async(req, res)=>{
+      
+      const result = await popularClassCollection.find({ status: { $in: ['pending', 'denied'] }}).toArray()
+      res.send(result)
+    }
+
+
+    app.patch('/classes/deny/:id', async (req, res) => {
+      const id = req.params.id;
+      console.log(id)
+      const filter = { _id: new ObjectId(id) }
+      const updateDoc = {
+        $set: {status: 'denied'}
+      }
+      const result = await popularClassCollection.updateOne(filter, updateDoc)
+      res.send(result);
+    })
 
 
 
